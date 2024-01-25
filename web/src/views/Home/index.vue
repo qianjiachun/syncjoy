@@ -78,7 +78,7 @@ const getUrl = () => {
           </a>
         </span>
 
-        <span class="text-4xl lg:text-[3.5rem] leading-tight font-bold text-[#3c3c43] text-center lg:text-start whitespace-pre-wrap lg:whitespace-nowrap">跨平台多人联机虚拟手柄</span>
+        <span class="text-4xl lg:text-[3.5rem] leading-tight font-bold text-[#3c3c43] text-center lg:text-start whitespace-pre-wrap lg:whitespace-nowrap">跨平台P2P虚拟手柄插件</span>
         <div class="flex items-center mt-8 flex-col lg:flex-row px-8 lg:px-0">
           <NInputGroup>
             <NInputGroupLabel size="large">房间名</NInputGroupLabel>
