@@ -1,0 +1,32 @@
+{
+  "name": "syncjoy",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@vueuse/core": "^10.7.2",
+    "clsx": "^2.1.0",
+    "copy-to-clipboard": "^3.3.3",
+    "es-drager": "^1.2.8",
+    "ulid": "^2.3.0",
+    "vue": "^3.4.15",
+    "vue-router": "^4.2.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.6",
+    "@vitejs/plugin-vue": "^5.0.3",
+    "autoprefixer": "^10.4.17",
+    "naive-ui": "^2.37.3",
+    "postcss": "^8.4.33",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.12",
+    "vite-svg-loader": "^5.1.0",
+    "vue-tsc": "^1.8.27"
+  }
+}
