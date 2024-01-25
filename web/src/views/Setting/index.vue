@@ -12,8 +12,7 @@ const imgSizeMap = ref<Map<string, { width: number; height: number }>>(new Map()
 const refSetting = ref<HTMLDivElement>();
 const router = useRouter();
 const backgroundColor = ref("rgb(240,242,245)");
-const isDragging = ref(false);
-const dragTimer = ref<NodeJS.Timeout>();
+const draggingTime = ref(0);
 const isShowDrawer = ref(false);
 const currentSelectItem = ref<IGamepadConfigItem>();
 const editingItem = ref({ gamepadImg: "", img: "", imgActive: "", scale: 1, angle: 0 });
@@ -99,10 +98,12 @@ const getItemProps = (item: IGamepadConfigItem) => {
 
 const preventDefault = (e: any) => e.preventDefault();
 const disableScroll = () => {
+  draggingTime.value = new Date().getTime();
   window.addEventListener("touchmove", preventDefault, { passive: false });
   window.addEventListener("wheel", preventDefault, { passive: false });
 };
 const enableScroll = () => {
+  draggingTime.value = new Date().getTime() - draggingTime.value;
   window.removeEventListener("touchmove", preventDefault);
   window.removeEventListener("wheel", preventDefault);
 };
@@ -116,11 +117,6 @@ const getItemEvent = (item: IGamepadConfigItem) => {
       item.left = e.left >= 0 ? e.left : 0;
       item.top = e.top >= 0 ? e.top : 0;
       item.angle = Number(e.angle.toFixed(2));
-      isDragging.value = true;
-      clearTimeout(dragTimer.value);
-      dragTimer.value = setTimeout(() => {
-        isDragging.value = false;
-      }, 1000);
     },
     dragStart: () => disableScroll(),
     dragEnd: () => enableScroll(),
@@ -129,7 +125,7 @@ const getItemEvent = (item: IGamepadConfigItem) => {
     rotateStart: () => disableScroll(),
     rotateEnd: () => enableScroll(),
     click: () => {
-      if (isDragging.value) return;
+      if (draggingTime.value > 200) return;
       editingItem.value = {
         gamepadImg: config.value.gamepad.img,
         img: item.img,
