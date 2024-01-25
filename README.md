@@ -1,8 +1,8 @@
 <p align="center">
     <a href="https://github.com/qianjiachun/syncjoy">
-        <span style="font-size: 128px">🎮</span>
+        <img src="https://s1.imagehub.cc/images/2024/01/25/da26ddf3f589bf03f139a59c413e3aab.png" width="150" height="150" />
     </a>
-    <h3 align="center">Douyu-Monitor</h3>
+    <h3 align="center">SyncJoy</h3>
     <br>
     <p align="center">
         <a href="https://github.com/qianjiachun/syncjoy"><img src="https://img.shields.io/github/languages/code-size/qianjiachun/syncjoy?color=blueviolet"></a>
@@ -16,7 +16,7 @@
 </p>
 
 > `SyncJoy` 是一款**跨平台** **P2P** **支持多人联机、推流机**的虚拟游戏手柄插件，用于直播展示手柄输入
-## 斗鱼跨平台弹幕助手
+## SyncJoy
 
 ### 预览
 [http://sb.douyuex.com](http://sb.douyuex.com)
