@@ -24,23 +24,23 @@ const actionOptions = ref([
     key: "configs",
     children: [
       {
-        label: "预设1",
+        label: "默认",
         key: "config-0"
       },
       {
-        label: "预设2",
+        label: "SWITCH",
         key: "config-1"
       },
       {
-        label: "预设3",
+        label: "XBOX",
         key: "config-2"
       },
       {
-        label: "预设4",
+        label: "PS4",
         key: "config-3"
       },
       {
-        label: "预设5",
+        label: "PS5",
         key: "config-4"
       }
     ]
@@ -164,7 +164,7 @@ const refreshImgSizeMap = async () => {
 const setConfig = (newConfig: IGamepadConfig) => {
   config.value = deepCopy(newConfig);
   refreshImgSizeMap();
-  message.success("设置皮肤预设完毕");
+  message.success("已切换预设");
 };
 
 const saveSetting = () => {
