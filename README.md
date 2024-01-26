@@ -10,9 +10,6 @@
         <a href="https://github.com/qianjiachun/syncjoy"><img src="https://img.shields.io/github/commit-activity/m/qianjiachun/syncjoy?color=9cf"></a>
         <a href="https://github.com/qianjiachun/syncjoy"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
     </p>
-    <p align="center">
-       SyncJoy<br>
-    </p>
 </p>
 
 > `SyncJoy` 是一**跨平台** **P2P** **支持推流机/多人多设备**的虚拟游戏手柄插件，用于直播展示手柄输入
