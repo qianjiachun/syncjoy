@@ -46,11 +46,11 @@ const actionOptions = ref([
     ]
   },
   {
-    label: "导入设置",
+    label: "导入皮肤",
     key: "import"
   },
   {
-    label: "导出设置",
+    label: "导出皮肤",
     key: "export"
   }
 ]);
@@ -58,13 +58,13 @@ const actionOptions = ref([
 const onSelectAction = (key: string | number) => {
   switch (key) {
     case "export":
-      exportAsFile(config.value, "我的皮肤预设.json");
-      message.success("导出皮肤预设完毕，请注意保存");
+      exportAsFile(config.value, "我的手柄.json");
+      message.success("导出皮肤完毕，请注意保存");
       break;
     case "import":
       openFilePicker((data) => {
         if (!data.gamepad) {
-          message.error("请导入正确的皮肤预设");
+          message.error("请导入正确的皮肤");
           return;
         }
         setConfig(data);
@@ -197,7 +197,7 @@ onMounted(() => {
       </div>
       <div class="flex justify-center items-center space-x-2 lg:space-x-4">
         <NDropdown trigger="click" :options="actionOptions" @select="onSelectAction">
-          <NButton strong>操作</NButton>
+          <NButton strong>更换皮肤</NButton>
         </NDropdown>
         <NButton type="primary" strong @click="saveSetting">保存设置</NButton>
       </div>
