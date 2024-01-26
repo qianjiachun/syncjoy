@@ -11,7 +11,7 @@ const remoteGamepads = ref<Record<string, IRemoteGamepad>>({});
 const signalling = useSignalling();
 
 const validRemoteGamepads = computed(() => {
-  return Object.values(remoteGamepads.value).filter((gamepad) => gamepad.config);
+  return Object.values(remoteGamepads.value).filter((gamepad) => gamepad.config && gamepad.inputState);
 });
 
 signalling.onMessage((message) => {
@@ -110,7 +110,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div :style="`grid-template-columns: repeat(${validRemoteGamepads.length + (localConfig ? 1 : 0)}, minmax(0, 1fr));`" class="w-full h-full grid gap-4">
+  <div :style="`grid-template-columns: repeat(${validRemoteGamepads.length + (localConfig && inputState ? 1 : 0)}, minmax(0, 1fr));`" class="w-full h-full grid gap-4">
     <div class="w-full h-full flex justify-center items-center text-4xl lg:text-5xl text-gray-400 text-nowrap" v-if="(!localConfig || !inputState) && validRemoteGamepads.length === 0">
       请输入任意手柄按键
     </div>
