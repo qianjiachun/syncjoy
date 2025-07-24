@@ -5,7 +5,7 @@ import svgLoader from "vite-svg-loader";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
-  base: "./",
+  // base: "./",
   plugins: [
     vue(),
     svgLoader(),
