@@ -6,15 +6,12 @@ const signallingServerUrl = "wss://sb.douyuex.com/signalling";
 const rtcConfig = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
+    { urls: ["stun:api.crossdesk.cn:3478"] },
+    { urls: ["turn:api.crossdesk.cn:3478"], username: "crossdesk", credential: "crossdeskpw" },
     {
       urls: "turn:turn.fsharechat.cn:3478",
       username: "comsince",
       credential: "comsince"
-    },
-    {
-      urls: "turn:freeturn.net:3478",
-      username: "free",
-      credential: "free"
     }
   ]
 };
@@ -25,10 +22,22 @@ export const useSignalling = () => {
   const connections = ref<Record<string, IConnection>>({});
   const myUid = ref<string>("");
   const onMessageCallback = ref<(msg: string) => void>();
+  let heartbeatTimer: number | null = null;
+  const candidateQueue: Record<string, RTCIceCandidateInit[]> = {};
+
+  const processCandidateQueue = async (uid: string) => {
+    if (candidateQueue[uid] && connections.value[uid]) {
+      for (const candidate of candidateQueue[uid]) {
+        await connections.value[uid].peerConnection.addIceCandidate(new RTCIceCandidate(candidate)).catch(console.error);
+      }
+      candidateQueue[uid] = [];
+    }
+  };
 
   const handleSDPOffer = async (msg: IMessageWebRTC) => {
     const uid = msg.fromUid;
     await connections.value[uid].peerConnection.setRemoteDescription(new RTCSessionDescription(msg));
+    await processCandidateQueue(uid);
 
     const answer = await connections.value[uid].peerConnection.createAnswer();
 
@@ -36,25 +45,50 @@ export const useSignalling = () => {
     server.value.send(JSON.stringify({ ...connections.value[uid].peerConnection.localDescription!.toJSON(), toUid: uid }));
   };
 
-  const handleSDPAnswer = (msg: IMessageWebRTC) => {
-    connections.value[msg.fromUid].peerConnection.setRemoteDescription(new RTCSessionDescription(msg));
+  const handleSDPAnswer = async (msg: IMessageWebRTC) => {
+    const uid = msg.fromUid;
+    await connections.value[uid].peerConnection.setRemoteDescription(new RTCSessionDescription(msg));
+    await processCandidateQueue(uid);
   };
 
   const handleCandidate = (msg: IMessageWebRTC) => {
-    connections.value[msg.fromUid].peerConnection.addIceCandidate(new RTCIceCandidate(msg.data));
+    const uid = msg.fromUid;
+    if (!connections.value[uid]) return;
+    const pc = connections.value[uid].peerConnection;
+    if (!pc.remoteDescription) {
+      if (!candidateQueue[uid]) candidateQueue[uid] = [];
+      candidateQueue[uid].push(msg.data);
+    } else {
+      pc.addIceCandidate(new RTCIceCandidate(msg.data)).catch(console.error);
+    }
   };
 
   // 初始化webrtc连接
-  const initConnection = (uid: string) => {
+  const initConnection = (uid: string, isOfferer: boolean = false) => {
     if (connections.value[uid]) return;
     const peerConnection = new RTCPeerConnection(rtcConfig);
-    const dataChannel = peerConnection.createDataChannel(`dataChannel-${uid}`);
-    connections.value[uid] = { peerConnection: peerConnection as any, dataChannel: dataChannel };
-    connections.value[uid].peerConnection.onicecandidate = (event) => {
+    connections.value[uid] = { peerConnection: peerConnection as any, dataChannel: null as any };
+
+    if (isOfferer) {
+      const dataChannel = peerConnection.createDataChannel(`dataChannel-${uid}`);
+      connections.value[uid].dataChannel = dataChannel;
+      dataChannel.onmessage = handleMessage;
+    } else {
+      peerConnection.ondatachannel = (event) => {
+        connections.value[uid].dataChannel = event.channel;
+        connections.value[uid].dataChannel.onmessage = handleMessage;
+      };
+    }
+
+    peerConnection.onicecandidate = (event) => {
       if (event.candidate) server.value.send(JSON.stringify({ type: "candidate", data: event.candidate, toUid: uid }));
     };
-    connections.value[uid].peerConnection.ondatachannel = (event) => (connections.value[uid].dataChannel = event.channel);
-    connections.value[uid].dataChannel.onmessage = handleMessage;
+
+    peerConnection.onconnectionstatechange = () => {
+      if (peerConnection.connectionState === "disconnected" || peerConnection.connectionState === "failed") {
+        handleLeave({ uid });
+      }
+    };
   };
 
   const handleMessageFromServer = (event: { data: string }) => {
@@ -91,24 +125,31 @@ export const useSignalling = () => {
   };
 
   const createOffer = async (uid: string) => {
-    connections.value[uid].peerConnection.onnegotiationneeded = async () => {
+    try {
       const offer = await connections.value[uid].peerConnection.createOffer();
       await connections.value[uid].peerConnection.setLocalDescription(offer);
       server.value.send(JSON.stringify({ ...connections.value[uid].peerConnection.localDescription!.toJSON(), toUid: uid }));
-    };
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleServerConnection = () => {
     isServerConnected.value = true;
-    setInterval(() => {
-      server.value.send(JSON.stringify({ type: "heartbeat" }));
-    }, 4 * 60 * 1000);
+    heartbeatTimer = window.setInterval(
+      () => {
+        if (server.value.readyState === WebSocket.OPEN) {
+          server.value.send(JSON.stringify({ type: "heartbeat" }));
+        }
+      },
+      4 * 60 * 1000
+    );
   };
 
   const handleServerClose = () => {
     isServerConnected.value = false;
     myUid.value = "";
-    server.value.send(JSON.stringify({ type: "leave", data: { uid: myUid.value } }));
+    if (heartbeatTimer) clearInterval(heartbeatTimer);
   };
 
   server.value.onopen = handleServerConnection;
@@ -125,21 +166,24 @@ export const useSignalling = () => {
     if (roomInfo.roomUids.length <= 1) return;
     for (const uid of roomInfo.roomUids) {
       if (uid === myUid.value) continue;
-      initConnection(uid);
+      initConnection(uid, true);
       createOffer(uid);
     }
   };
 
   const handleJoined = (join: IJoin) => {
-    initConnection(join.uid);
+    initConnection(join.uid, false);
   };
 
   const handleLeave = (msg: ILeave) => {
     const uid = msg.uid;
     if (!connections.value[uid]) return;
     connections.value[uid].peerConnection.close();
-    connections.value[uid].dataChannel.close();
+    if (connections.value[uid].dataChannel) {
+      connections.value[uid].dataChannel.close();
+    }
     delete connections.value[uid];
+    if (candidateQueue[uid]) delete candidateQueue[uid];
     onUserLeaveCallback.value && onUserLeaveCallback.value(uid);
   };
 

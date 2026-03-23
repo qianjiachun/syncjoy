@@ -83,8 +83,7 @@ function broadcastToUid(uid: string, data: any) {
 setInterval(() => {
   let leaveUsers: IUser[] = [];
   const now = new Date().getTime();
-  for (const key in rooms) {
-    const room = rooms.get(key) as IRoom;
+  for (const room of rooms.values()) {
     for (const uid in room.users) {
       const user = room.users[uid];
       if (now - user.heartbeatTime > HEARTBEAT_INTERVAL) {
