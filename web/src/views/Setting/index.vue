@@ -147,15 +147,22 @@ const gamepadStyle = computed(() => {
 });
 
 const applyEditing = async () => {
-  if (!currentSelectItem.value) return;
-  config.value.gamepad.img = editingItem.value.gamepadImg;
-  currentSelectItem.value.img = editingItem.value.img;
-  currentSelectItem.value.imgActive = editingItem.value.imgActive;
-  currentSelectItem.value.scale = editingItem.value.scale;
-  currentSelectItem.value.angle = editingItem.value.angle;
   refreshImgSizeMap();
   isShowDrawer.value = false;
 };
+
+watch(
+  () => editingItem.value,
+  (newVal) => {
+    if (!currentSelectItem.value) return;
+    config.value.gamepad.img = newVal.gamepadImg;
+    currentSelectItem.value.img = newVal.img;
+    currentSelectItem.value.imgActive = newVal.imgActive;
+    currentSelectItem.value.scale = newVal.scale;
+    currentSelectItem.value.angle = newVal.angle;
+  },
+  { deep: true }
+);
 
 const refreshImgSizeMap = async () => {
   imgSizeMap.value = await getImageSizeMapFromConfig(config.value);
@@ -221,7 +228,7 @@ onMounted(() => {
       <Drager class="absolute bg-no-repeat bg-[100%,100%]" v-bind="getItemProps(config.back)" v-on="getItemEvent(config.back)"></Drager>
       <Drager class="absolute bg-no-repeat bg-[100%,100%]" v-bind="getItemProps(config.start)" v-on="getItemEvent(config.start)"></Drager>
     </div>
-    <NDrawer v-model:show="isShowDrawer" placement="right" resizable :default-width="`60%`" :auto-focus="false">
+    <NDrawer v-model:show="isShowDrawer" placement="right" resizable :default-width="360" :auto-focus="false" :show-mask="false" :mask-closable="false" style="box-shadow: -4px 0 15px rgba(0,0,0,0.1);">
       <NDrawerContent>
         <template #header>
           <span>编辑按键</span>

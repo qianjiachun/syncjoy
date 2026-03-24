@@ -110,7 +110,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div :style="`grid-template-columns: repeat(${validRemoteGamepads.length + (localConfig && inputState ? 1 : 0)}, minmax(0, 1fr));`" class="w-full h-full grid gap-4">
+  <div style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));" class="w-full h-full grid gap-4 place-items-center p-4">
     <div class="w-full h-full flex justify-center items-center text-4xl lg:text-5xl text-gray-400 text-nowrap" v-if="(!localConfig || !inputState) && validRemoteGamepads.length === 0">
       请输入任意手柄按键
     </div>

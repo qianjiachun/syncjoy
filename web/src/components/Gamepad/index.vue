@@ -47,13 +47,13 @@ const getTriggerOpacity = (value: any) => {
 };
 
 const getStickPositionStyle = (value: any) => {
-  if (!value) return "";
+  if (!value) return "transition: margin 0.05s linear;";
   const horizontal = Number(value.horizontal.toFixed(4));
   const vertical = Number(value.vertical.toFixed(4));
   // 上下偏移2%
   const marginLeft = horizontal * 2;
   const marginTop = vertical * 2;
-  return `margin-left: ${marginLeft}%;margin-top: ${marginTop}%;`;
+  return `margin-left: ${marginLeft}%;margin-top: ${marginTop}%; transition: margin 0.05s linear;`;
 };
 
 watch(
