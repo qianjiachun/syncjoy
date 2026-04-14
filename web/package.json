@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vue-tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "node ./deploy/index.js"
   },
   "dependencies": {
     "@vueuse/core": "^10.7.2",
