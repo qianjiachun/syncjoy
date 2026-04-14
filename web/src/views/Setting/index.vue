@@ -9,14 +9,12 @@ import { useLocalConfig } from "@/hooks/useLocalConfig";
 const { defaultConfigs, saveLocalConfig, getLocalConfig } = useLocalConfig();
 const config = ref<IGamepadConfig>(deepCopy(defaultConfigs[0]));
 const imgSizeMap = ref<Map<string, { width: number; height: number }>>(new Map());
-const refSetting = ref<HTMLDivElement>();
 const router = useRouter();
 const backgroundColor = ref("rgb(240,242,245)");
 const draggingTime = ref(0);
 const isShowDrawer = ref(false);
 const currentSelectItem = ref<IGamepadConfigItem>();
 const editingItem = ref({ gamepadImg: "", img: "", imgActive: "", scale: 1, angle: 0 });
-const refEditing = ref();
 const message = useMessage();
 const actionOptions = ref([
   {
